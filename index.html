@@ -326,59 +326,58 @@ function closeCamera(){
 }
 
 async function submitData(){
-  const namaVal = document.getElementById("nama").value;
-  const tanggalVal = document.getElementById("tanggal").value;
-  const shiftVal = document.getElementById("shift").value;
-  const grupVal = document.getElementById("grup").value;
-  const varianVal = document.getElementById("varian").value;
-  const spbVal = document.getElementById("spb").value;
-  const qtyVal = document.getElementById("qty").value;
+  const namaVal = nama.value;
+  const tanggalVal = tanggal.value;
+  const shiftVal = shift.value;
+  const grupVal = grup.value;
+  const varianVal = varian.value;
+  const spbVal = spb.value;
+  const qtyVal = qty.value;
 
   if (!namaVal || !tanggalVal || !shiftVal || !grupVal || !varianVal || !spbVal || !qtyVal) {
     alert("Harap isi semua field wajib.");
     return;
   }
 
-  loading.style.display="block";
+  loading.style.display = "block";
 
-  const payload = {
-    nama: namaVal,
-    tanggal: tanggalVal,
-    shift: shiftVal,
-    grup: grupVal,
-    varian: varianVal,
-    spb: spbVal,
-    qty: parseInt(qtyVal),
-    foto_barang_isu: document.getElementById("img_barangIsu").src
-  };
+  const formData = new FormData();
+  formData.append("nama", namaVal);
+  formData.append("tanggal", tanggalVal);
+  formData.append("shift", shiftVal);
+  formData.append("grup", grupVal);
+  formData.append("varian", varianVal);
+  formData.append("spb", spbVal);
+  formData.append("qty", qtyVal);
+  formData.append(
+    "foto_barang_isu",
+    document.getElementById("img_barangIsu").src || ""
+  );
 
   try {
     const response = await fetch(WEB_APP_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: formData
     });
 
-    if (response.ok) {
+    const result = await response.text();
+    console.log("Server response:", result);
+
+    if (response.ok && result.includes("SUCCESS")) {
       alert("✅ Laporan berhasil dikirim");
       location.reload();
     } else {
-      throw new Error(`Server error: ${response.status}`);
+      throw new Error(result);
     }
-  } catch (error) {
-    console.error("Submission error:", error);
-    alert("Gagal mengirim laporan. Silakan coba lagi nanti.");
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Gagal mengirim laporan.\nPeriksa koneksi atau server.");
   } finally {
     loading.style.display = "none";
   }
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("tanggal").value = today;
-});
 </script>
 </body>
 
 </html>
-
